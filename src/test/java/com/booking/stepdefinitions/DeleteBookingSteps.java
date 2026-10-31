@@ -1,6 +1,7 @@
 package com.booking.stepdefinitions;
 
 import static io.restassured.RestAssured.given;
+import com.booking.utils.ApiUtils;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
@@ -46,8 +47,7 @@ public class DeleteBookingSteps {
 	@When("I delete the booking with authentication")
 	public void deleteBooking() {
 
-		response = given().header("Cookie", "token=" + token).delete(baseUrl + "/booking/" + bookingId);
-
+		response = ApiUtils.delete("/booking/" + bookingId, token);
 		printResponse();
 	}
 

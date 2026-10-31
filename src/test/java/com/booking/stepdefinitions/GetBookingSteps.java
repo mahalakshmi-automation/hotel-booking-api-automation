@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
-
+import com.booking.utils.ApiUtils;
 public class GetBookingSteps {
 	private Response response;
 

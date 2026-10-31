@@ -7,6 +7,7 @@ import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import com.booking.utils.ApiUtils;
 
 public class UpdateBookingSteps {
 	private final String baseUrl = "https://automationintesting.online/api";
@@ -25,9 +26,9 @@ public class UpdateBookingSteps {
 				}
 				""";
 
-		Response authResponse = given().contentType(ContentType.JSON).body(body).post(baseUrl + "/auth");
+		Response authResponse = given().contentType(ContentType.JSON).body(body).post(baseUrl + "/auth/login");
 		System.out.println("Authentication Status: " + authResponse.statusCode());
-		System.out.println("Authentication Response: " + authResponse.asString());
+		// System.out.println("Authentication Response: " + authResponse.asString());
 
 		authResponse.then().statusCode(200);
 
@@ -36,9 +37,15 @@ public class UpdateBookingSteps {
 
 	@Given("I have an existing booking ID")
 	public void getBookingId() {
-		// Temporary ID for testing.
-		// Replace with an ID created by the API.
-		bookingId = 1;
+
+		Response bookingResponse = given().header("Cookie", "token=" + token).queryParam("roomid", 1)
+				.get(baseUrl + "/booking");
+
+		bookingResponse.then().statusCode(200);
+
+		bookingId = bookingResponse.jsonPath().getInt("bookings[0].bookingid");
+
+		System.out.println("Using Booking ID: " + bookingId);
 	}
 
 	@When("I update the booking details")
@@ -59,8 +66,7 @@ public class UpdateBookingSteps {
 				}
 				""";
 
-		response = given().contentType(ContentType.JSON).header("Cookie", "token=" + token).body(body)
-				.put(baseUrl + "/booking/" + bookingId);
+		response = ApiUtils.put("/booking/" + bookingId, body, token);
 
 		printResponse();
 	}
@@ -68,17 +74,33 @@ public class UpdateBookingSteps {
 	@When("I partially update the booking firstname")
 	public void patchBooking() {
 
-		response = given().contentType(ContentType.JSON).header("Cookie", "token=" + token)
-				.body("{\"firstname\":\"David\"}").patch(baseUrl + "/booking/" + bookingId);
-
+		response = ApiUtils.patch(
+			    "/booking/" + bookingId,
+			    "{\"firstname\":\"David\"}",
+			    token
+			);
 		printResponse();
 	}
 
 	@When("I update the booking without authentication")
 	public void updateWithoutToken() {
 
-		response = given().contentType(ContentType.JSON).body("{\"firstname\":\"David\"}")
-				.put(baseUrl + "/booking/" + bookingId);
+		String body = """
+				{
+				  "roomid": 1,
+				  "firstname": "John",
+				  "lastname": "Smith",
+				  "depositpaid": true,
+				  "bookingdates": {
+				    "checkin": "2027-03-10",
+				    "checkout": "2027-03-12"
+				  },
+				  "email": "john.smith@example.com",
+				  "phone": "98765432101"
+				}
+				""";
+
+		response = given().contentType(ContentType.JSON).body(body).put(baseUrl + "/booking/" + bookingId);
 
 		printResponse();
 	}

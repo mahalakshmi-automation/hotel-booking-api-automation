@@ -10,6 +10,7 @@ import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import com.booking.utils.ApiUtils;
 
 public class AuthenticationSteps {
 	private Response response;
@@ -25,8 +26,7 @@ public class AuthenticationSteps {
 
 		String requestBody = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password);
 
-		response = given().contentType(ContentType.JSON).body(requestBody).when().post(baseUrl + "/auth/login");
-
+		response = ApiUtils.post("/auth/login", requestBody);
 		System.out.println("Auth Status Code: " + response.statusCode());
 		response.prettyPrint();
 	}

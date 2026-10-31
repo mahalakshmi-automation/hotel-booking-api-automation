@@ -102,3 +102,30 @@ Five observations have been recorded separately with supporting evidence.
 ### Version Control
 
 Project changes are maintained using Git and pushed to the main branch on GitHub.
+
+### Latest Test Execution Results
+
+Execution date: 31 October 2026
+
+- Total scenarios: 17
+- Passed: 6
+- Failed: 11
+- Skipped: 0
+- Build status: FAILURE
+
+The failed scenarios are documented for investigation. Several API endpoints returned HTTP 500 Internal Server Error instead of the expected status codes.
+
+### Test Execution Commands
+
+Run all scenarios:
+`mvn clean test`
+
+Run only delete booking scenarios:
+`mvn test -Dcucumber.filter.tags="@deleteBooking"`
+
+Run only update booking scenarios:
+`mvn test -Dcucumber.filter.tags="@updateBooking"`
+
+### API Testing Observations
+
+The automation tests retain the expected status codes from the API specification. Unexpected responses are recorded as observations rather than changing assertions simply to make tests pass.

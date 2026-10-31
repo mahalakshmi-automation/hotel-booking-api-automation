@@ -22,6 +22,21 @@ public class GetBookingSteps {
 		response.prettyPrint();
 	}
 
+	@When("I request booking ID {int} with valid authentication")
+	public void getBookingWithValidAuthentication(int bookingId) {
+
+		String requestBody = "{\"username\":\"admin\",\"password\":\"password\"}";
+
+		Response loginResponse = ApiUtils.post("/auth/login", requestBody);
+
+		String token = loginResponse.jsonPath().getString("token");
+
+		response = ApiUtils.get("/booking/" + bookingId, token);
+
+		System.out.println("Get Booking Status: " + response.statusCode());
+		response.prettyPrint();
+	}
+
 	@Then("the get booking status code should be {int}")
 	public void verifyStatusCode(int statusCode) {
 		response.then().statusCode(statusCode);

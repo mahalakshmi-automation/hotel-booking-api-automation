@@ -40,7 +40,7 @@ public class CreateBookingSteps {
 
 	@Then("the booking should be created successfully")
 	public void verifyStatusCode() {
-		response.then().statusCode(200);
+		response.then().statusCode(201);
 	}
 
 	@Then("the response should contain a booking ID")

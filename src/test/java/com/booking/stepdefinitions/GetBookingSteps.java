@@ -7,6 +7,7 @@ import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
 import com.booking.utils.ApiUtils;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 public class GetBookingSteps {
 	private Response response;
@@ -47,4 +48,8 @@ public class GetBookingSteps {
 		response.then().body("error", equalTo(error));
 	}
 
+	@Then("the get booking response should match the JSON schema")
+	public void validateGetBookingSchema() {
+		response.then().assertThat().body(matchesJsonSchemaInClasspath("schemas/booking-response-schema.json"));
+	}
 }

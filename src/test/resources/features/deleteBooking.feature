@@ -14,7 +14,6 @@ Feature: Delete Booking API
     When I delete the booking without authentication
     Then the delete booking status code should be 401
 
-  @negative
-  Scenario: Delete booking without authentication
-    When I delete booking 1 without authentication
-    Then the delete booking status code should be 401
+  
+
+  

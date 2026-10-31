@@ -100,8 +100,10 @@ public class UpdateBookingSteps {
 				}
 				""";
 
-		response = given().contentType(ContentType.JSON).body(body).put(baseUrl + "/booking/" + bookingId);
-
+		response = given()
+		        .contentType(ContentType.JSON)
+		        .body(body)
+		        .put(baseUrl + "/booking/" + bookingId);
 		printResponse();
 	}
 

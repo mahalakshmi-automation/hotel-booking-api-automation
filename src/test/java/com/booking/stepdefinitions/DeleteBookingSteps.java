@@ -26,8 +26,7 @@ public class DeleteBookingSteps {
 				}
 				""";
 
-		Response authResponse = given().contentType(ContentType.JSON).body(body).post(baseUrl + "/auth");
-
+		Response authResponse = given().contentType(ContentType.JSON).body(body).post(baseUrl + "/auth/login");
 		System.out.println("Authentication Status: " + authResponse.statusCode());
 
 		System.out.println("Authentication Response: " + authResponse.asString());

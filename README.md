@@ -107,9 +107,9 @@ Project changes are maintained using Git and pushed to the main branch on GitHub
 
 Execution date: 31 October 2026
 
-- Total scenarios: 17
+- Total scenarios: 16
 - Passed: 6
-- Failed: 11
+- Failed: 10
 - Skipped: 0
 - Build status: FAILURE
 

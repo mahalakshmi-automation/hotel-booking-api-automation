@@ -29,4 +29,8 @@ public class ApiUtils {
 	public static Response delete(String endpoint, String token) {
 		return given().header("Cookie", "token=" + token).delete(BASE_URL + endpoint);
 	}
+
+	public static Response getWithoutAuth(String endpoint) {
+		return given().get(BASE_URL + endpoint);
+	}
 }

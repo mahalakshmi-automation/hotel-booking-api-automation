@@ -7,6 +7,7 @@ import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
 import com.booking.utils.ApiUtils;
+
 public class GetBookingSteps {
 	private Response response;
 
@@ -15,7 +16,7 @@ public class GetBookingSteps {
 	@When("I request booking ID {int} without authentication")
 	public void getBookingWithoutAuthentication(int bookingId) {
 
-		response = given().when().get(baseUrl + "/booking/" + bookingId);
+		response = ApiUtils.getWithoutAuth("/booking/" + bookingId);
 
 		System.out.println("Get Booking Status: " + response.statusCode());
 		response.prettyPrint();

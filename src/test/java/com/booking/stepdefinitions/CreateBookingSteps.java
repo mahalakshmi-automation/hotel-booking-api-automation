@@ -57,4 +57,38 @@ public class CreateBookingSteps {
 				.body("booking.email", equalTo("john.doe@example.com")).body("booking.phone", equalTo("98765432101"));
 	}
 
+	@When("I create a booking without request body")
+	public void createBookingWithoutBody() {
+		response = given().contentType(ContentType.JSON).post("https://automationintesting.online/api/booking");
+
+		System.out.println("Missing Body Status: " + response.statusCode());
+		System.out.println("Response: " + response.asString());
+	}
+
+	@When("I create a booking without firstname")
+	public void createBookingWithoutFirstname() {
+
+	    String requestBody = """
+	        {
+	          "roomid": 1,
+	          "lastname": "Smith",
+	          "depositpaid": true,
+	          "bookingdates": {
+	            "checkin": "2027-03-10",
+	            "checkout": "2027-03-12"
+	          },
+	          "email": "john@example.com",
+	          "phone": "9876543210"
+	        }
+	        """;
+
+	    response = given()
+	            .contentType(ContentType.JSON)
+	            .body(requestBody)
+	            .post("https://automationintesting.online/api/booking");
+
+	    System.out.println("Missing Firstname Status: " + response.statusCode());
+	    System.out.println("Response: " + response.asString());
+
+}
 }

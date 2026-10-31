@@ -68,27 +68,30 @@ public class CreateBookingSteps {
 	@When("I create a booking without firstname")
 	public void createBookingWithoutFirstname() {
 
-	    String requestBody = """
-	        {
-	          "roomid": 1,
-	          "lastname": "Smith",
-	          "depositpaid": true,
-	          "bookingdates": {
-	            "checkin": "2027-03-10",
-	            "checkout": "2027-03-12"
-	          },
-	          "email": "john@example.com",
-	          "phone": "9876543210"
-	        }
-	        """;
+		String requestBody = """
+				{
+				  "roomid": 1,
+				  "lastname": "Smith",
+				  "depositpaid": true,
+				  "bookingdates": {
+				    "checkin": "2027-03-10",
+				    "checkout": "2027-03-12"
+				  },
+				  "email": "john@example.com",
+				  "phone": "9876543210"
+				}
+				""";
 
-	    response = given()
-	            .contentType(ContentType.JSON)
-	            .body(requestBody)
-	            .post("https://automationintesting.online/api/booking");
+		response = given().contentType(ContentType.JSON).body(requestBody)
+				.post("https://automationintesting.online/api/booking");
 
-	    System.out.println("Missing Firstname Status: " + response.statusCode());
-	    System.out.println("Response: " + response.asString());
+		System.out.println("Missing Firstname Status: " + response.statusCode());
+		System.out.println("Response: " + response.asString());
 
-}
+	}
+
+	@Then("the create booking status code should be {int}")
+	public void verifyCreateBookingStatus(int statusCode) {
+		response.then().statusCode(statusCode);
+	}
 }

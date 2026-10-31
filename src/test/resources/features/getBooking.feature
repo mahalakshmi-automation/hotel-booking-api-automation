@@ -1,0 +1,9 @@
+
+@getbooking
+Feature: Get Booking API
+
+  @negative
+  Scenario: Get booking without authentication
+    When I request booking ID 1 without authentication
+    Then the get booking status code should be 401
+    And the get booking error should be "Unauthorized"

@@ -74,11 +74,7 @@ public class UpdateBookingSteps {
 	@When("I partially update the booking firstname")
 	public void patchBooking() {
 
-		response = ApiUtils.patch(
-			    "/booking/" + bookingId,
-			    "{\"firstname\":\"David\"}",
-			    token
-			);
+		response = ApiUtils.patch("/booking/" + bookingId, "{\"firstname\":\"David\"}", token);
 		printResponse();
 	}
 
@@ -100,10 +96,7 @@ public class UpdateBookingSteps {
 				}
 				""";
 
-		response = given()
-		        .contentType(ContentType.JSON)
-		        .body(body)
-		        .put(baseUrl + "/booking/" + bookingId);
+		response = given().contentType(ContentType.JSON).body(body).put(baseUrl + "/booking/" + bookingId);
 		printResponse();
 	}
 

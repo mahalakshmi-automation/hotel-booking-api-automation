@@ -65,3 +65,40 @@ This kata has the purpose to evaluate both your technical skills as well as your
 * Quality of the codebase (design patterns, structure, code quality, …)
 * Use of Rest-Assured and Cucumber features
 * Commit history and progress demonstration
+---
+
+## Hotel Booking API Automation Framework
+
+This project uses Java 17, REST Assured, Cucumber BDD, JUnit 5 and Maven to automate hotel booking API tests.
+
+### Test Coverage
+
+- API health check
+- Authentication with valid and invalid credentials
+- Create booking and input validation
+- Get booking with and without authentication
+- Update booking
+- Delete booking
+- API response status code validation
+
+### Running Tests
+
+Run the tests using:
+
+```bash
+mvn clean test
+```
+
+### Test Reports
+
+Cucumber reports are generated in the target directory. Maven test results are available under `target/surefire-reports`.
+
+### Known API Issues
+
+Some API scenarios currently return HTTP 500 Internal Server Error instead of the expected status codes. These failures are retained for investigation rather than changing the expected assertions.
+
+Five observations have been recorded separately with supporting evidence.
+
+### Version Control
+
+Project changes are maintained using Git and pushed to the main branch on GitHub.

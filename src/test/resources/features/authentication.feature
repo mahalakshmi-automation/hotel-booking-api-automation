@@ -7,7 +7,7 @@ Feature: Authentication API
 
   @positive
   Scenario: Login with valid credentials
-    When I login with username "admin" and password "password"
+    When I login with configured valid credentials
     Then the authentication status code should be 200
     And the response should contain an authentication token
 

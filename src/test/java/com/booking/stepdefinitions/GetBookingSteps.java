@@ -1,55 +1,20 @@
 package com.booking.stepdefinitions;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-
+import com.booking.utils.ApiUtils;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.restassured.response.Response;
-import com.booking.utils.ApiUtils;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-
+import static org.junit.jupiter.api.Assertions.*;
 public class GetBookingSteps {
-	private Response response;
-
-	private final String baseUrl = "https://automationintesting.online/api";
-
-	@When("I request booking ID {int} without authentication")
-	public void getBookingWithoutAuthentication(int bookingId) {
-
-		response = ApiUtils.getWithoutAuth("/booking/" + bookingId);
-
-		System.out.println("Get Booking Status: " + response.statusCode());
-		response.prettyPrint();
-	}
-
-	@When("I request booking ID {int} with valid authentication")
-	public void getBookingWithValidAuthentication(int bookingId) {
-
-		String requestBody = "{\"username\":\"admin\",\"password\":\"password\"}";
-
-		Response loginResponse = ApiUtils.post("/auth/login", requestBody);
-
-		String token = loginResponse.jsonPath().getString("token");
-
-		response = ApiUtils.get("/booking/" + bookingId, token);
-
-		System.out.println("Get Booking Status: " + response.statusCode());
-		response.prettyPrint();
-	}
-
-	@Then("the get booking status code should be {int}")
-	public void verifyStatusCode(int statusCode) {
-		response.then().statusCode(statusCode);
-	}
-
-	@Then("the get booking error should be {string}")
-	public void verifyError(String error) {
-		response.then().body("error", equalTo(error));
-	}
-
-	@Then("the get booking response should match the JSON schema")
-	public void validateGetBookingSchema() {
-		response.then().assertThat().body(matchesJsonSchemaInClasspath("schemas/booking-response-schema.json"));
-	}
+    private Response response;
+    @When("I request booking ID {int} without authentication")
+    public void withoutAuth(int id) { response = ApiUtils.getWithoutAuth("/booking/" + id); }
+    @When("I request booking ID {int} with valid authentication")
+    public void withAuth(int id) { response = ApiUtils.get("/booking/" + id, ApiUtils.loginToken()); }
+    @Then("the get booking status code should be {int}")
+    public void status(int expected) { assertEquals(expected, response.statusCode()); }
+    @Then("the get booking error should be {string}")
+    public void error(String expected) { assertEquals(expected, response.jsonPath().getString("error")); }
+    @Then("the get booking response should match the JSON schema")
+    public void schema() { response.then().body(matchesJsonSchemaInClasspath("schemas/booking-response-schema.json")); }
 }

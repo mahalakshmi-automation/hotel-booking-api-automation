@@ -1,97 +1,49 @@
 package com.booking.stepdefinitions;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-
-import org.junit.jupiter.api.Assertions;
-
-import io.cucumber.java.en.When;
+import com.booking.models.BookingRequest;
+import com.booking.utils.ApiUtils;
+import com.booking.utils.TestData;
 import io.cucumber.java.en.Then;
-import io.restassured.http.ContentType;
+import io.cucumber.java.en.When;
 import io.restassured.response.Response;
-
+import static org.junit.jupiter.api.Assertions.*;
 public class CreateBookingSteps {
-	private Response response;
-
-	private final String baseUrl = "https://automationintesting.online/api";
-
-	@When("I create a booking with valid details")
-	public void createBooking() {
-
-		String requestBody = """
-				{
-				  "roomid": 1,
-				  "firstname": "John",
-				  "lastname": "Doe",
-				  "depositpaid": true,
-				  "bookingdates": {
-				    "checkin": "2027-03-10",
-				    "checkout": "2027-03-12"
-				  },
-				  "email": "john.doe@example.com",
-				  "phone": "98765432101"
-				}
-				""";
-
-		response = given().contentType(ContentType.JSON).body(requestBody).when().post(baseUrl + "/booking");
-		System.out.println("Status Code: " + response.statusCode());
-		response.prettyPrint();
-	}
-
-	@Then("the booking should be created successfully")
-	public void verifyStatusCode() {
-		response.then().statusCode(201);
-	}
-
-	@Then("the response should contain a booking ID")
-	public void verifyBookingId() {
-		Integer bookingId = response.jsonPath().getInt("bookingid");
-
-		Assertions.assertTrue(bookingId > 0, "Booking ID should be greater than zero");
-	}
-
-	@Then("the created booking details should match the request")
-	public void verifyBookingDetails() {
-		response.then().body("booking.roomid", equalTo(2)).body("booking.firstname", equalTo("John"))
-				.body("booking.lastname", equalTo("Doe")).body("booking.depositpaid", equalTo(true))
-				.body("booking.email", equalTo("john.doe@example.com")).body("booking.phone", equalTo("98765432101"));
-	}
-
-	@When("I create a booking without request body")
-	public void createBookingWithoutBody() {
-		response = given().contentType(ContentType.JSON).post("https://automationintesting.online/api/booking");
-
-		System.out.println("Missing Body Status: " + response.statusCode());
-		System.out.println("Response: " + response.asString());
-	}
-
-	@When("I create a booking without firstname")
-	public void createBookingWithoutFirstname() {
-
-		String requestBody = """
-				{
-				  "roomid": 1,
-				  "lastname": "Smith",
-				  "depositpaid": true,
-				  "bookingdates": {
-				    "checkin": "2027-03-10",
-				    "checkout": "2027-03-12"
-				  },
-				  "email": "john@example.com",
-				  "phone": "9876543210"
-				}
-				""";
-
-		response = given().contentType(ContentType.JSON).body(requestBody)
-				.post("https://automationintesting.online/api/booking");
-
-		System.out.println("Missing Firstname Status: " + response.statusCode());
-		System.out.println("Response: " + response.asString());
-
-	}
-
-	@Then("the create booking status code should be {int}")
-	public void verifyCreateBookingStatus(int statusCode) {
-		response.then().statusCode(statusCode);
-	}
+    private Response response;
+    private BookingRequest request;
+    @When("I create a booking with valid details")
+    public void createBooking() {
+        request = TestData.booking();
+        response = ApiUtils.post("/booking", request);
+    }
+    @Then("the booking should be created successfully")
+    public void verifyStatusCode() { assertEquals(201, response.statusCode()); }
+    @Then("the response should contain a booking ID")
+    public void verifyBookingId() { assertTrue(response.jsonPath().getInt("bookingid") > 0); }
+    @Then("the created booking details should match the request")
+    public void verifyBookingDetails() {
+        assertEquals(request.getRoomid(), response.jsonPath().getInt("booking.roomid"));
+        assertEquals(request.getFirstname(), response.jsonPath().getString("booking.firstname"));
+        assertEquals(request.getLastname(), response.jsonPath().getString("booking.lastname"));
+        assertEquals(request.isDepositpaid(), response.jsonPath().getBoolean("booking.depositpaid"));
+        assertEquals(request.getEmail(), response.jsonPath().getString("booking.email"));
+        assertEquals(request.getPhone(), response.jsonPath().getString("booking.phone"));
+        assertEquals(request.getBookingdates().getCheckin(), response.jsonPath().getString("booking.bookingdates.checkin"));
+        assertEquals(request.getBookingdates().getCheckout(), response.jsonPath().getString("booking.bookingdates.checkout"));
+    }
+    @When("I create a booking without request body")
+    public void withoutBody() { response = ApiUtils.post("/booking", null); }
+    @When("I create a booking without firstname")
+    public void withoutFirstname() {
+        // Intentionally omit firstname instead of sending null, to validate a required field.
+        request = TestData.booking();
+        java.util.Map<String,Object> body = new java.util.LinkedHashMap<>();
+        body.put("roomid", request.getRoomid());
+        body.put("lastname", request.getLastname());
+        body.put("depositpaid", request.isDepositpaid());
+        body.put("bookingdates", request.getBookingdates());
+        body.put("email", request.getEmail());
+        body.put("phone", request.getPhone());
+        response = ApiUtils.post("/booking", body);
+    }
+    @Then("the create booking status code should be {int}")
+    public void verifyCreateBookingStatus(int expected) { assertEquals(expected, response.statusCode()); }
 }

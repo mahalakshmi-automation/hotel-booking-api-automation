@@ -97,7 +97,7 @@ Cucumber reports are generated in the target directory. Maven test results are a
 
 Some API scenarios currently return HTTP 500 Internal Server Error instead of the expected status codes. These failures are retained for investigation rather than changing the expected assertions.
 
-Five observations have been recorded separately with supporting evidence.
+API observations are maintained separately with supporting evidence.
 
 ### Version Control
 
@@ -129,3 +129,39 @@ Run only update booking scenarios:
 ### API Testing Observations
 
 The automation tests retain the expected status codes from the API specification. Unexpected responses are recorded as observations rather than changing assertions simply to make tests pass.
+
+
+## Reviewer-feedback refactoring (October 2026)
+
+- `src/test/resources/config.properties` provides the base URL and local test credentials. Override values with `-Dbase.url=...`, `-Dauth.username=...`, `-Dauth.password=...` or matching environment variables (`BASE_URL`, `AUTH_USERNAME`, `AUTH_PASSWORD`). Do not commit real secrets.
+- `models/` contains Lombok POJOs; REST Assured serializes these objects through Jackson.
+- `utils/ApiUtils` centralizes request construction, auth cookies, endpoints, and SLF4J response status logging.
+- `hooks/ScenarioHooks` logs scenario start and completion; no redundant global test state is stored.
+- Create/update/delete scenarios use newly created booking IDs instead of hardcoded IDs, where practical.
+- Existing Scenario Outline, Background, JSON Schema, and end-to-end feature remain in place.
+
+**Run:** `mvn clean test`. The final HTML report is `target/cucumber-reports.html`.
+Live API 500 responses can still cause legitimate failures; do not change expected assertions to make those tests pass.
+
+**Important:** This refactor has not been validated against the live service in the generated ZIP. Run Maven locally and review actual API responses before submission.
+
+
+### Cucumber Background usage
+
+- `authentication.feature` uses Background for shared authentication API availability setup.
+- `updateBooking.feature` creates a fresh booking in Background for each update scenario; authentication remains scenario-specific so the unauthenticated negative case stays valid.
+- `deleteBooking.feature` creates a fresh booking in Background for each deletion scenario; authentication remains scenario-specific.
+- Other feature files do not have a shared Given prerequisite that warrants Background; adding one solely for style would make tests less clear.
+
+**Validation note:** Run `mvn test-compile` and `mvn test` locally before committing. Live API HTTP 500 responses may cause test failures unrelated to compilation.
+
+### Final verification checklist (before submission)
+
+1. Import the Maven project in Eclipse and enable Lombok annotation processing if the IDE reports missing generated getters or constructors.
+2. Run `mvn test-compile` to check Java compilation.
+3. Run `mvn clean test` to generate the latest Cucumber HTML report.
+4. Record actual status codes and failures. Do not change contract-based expected values to force green tests.
+5. Review `git diff`, commit only reviewed project changes, and push to your own GitHub remote.
+6. On Monday, rerun tests and archive the newly generated `target/cucumber-reports.html`.
+
+**Scope note:** Cucumber Background is used only where setup is shared by every scenario in a feature. Adding Background to every feature is not a requirement.

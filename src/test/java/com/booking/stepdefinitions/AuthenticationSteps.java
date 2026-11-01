@@ -1,52 +1,26 @@
 package com.booking.stepdefinitions;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-
-import org.junit.jupiter.api.Assertions;
-
+import com.booking.models.LoginRequest;
+import com.booking.utils.ApiUtils;
+import com.booking.utils.TestData;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import com.booking.utils.ApiUtils;
-
+import static org.junit.jupiter.api.Assertions.*;
 public class AuthenticationSteps {
-	private Response response;
-	private final String baseUrl = "https://automationintesting.online/api";
-
-	@Given("the authentication API is available")
-	public void authenticationApiAvailable() {
-		// Base URL is configured for the authentication requests.
-	}
-
-	@When("I login with username {string} and password {string}")
-	public void login(String username, String password) {
-
-		String requestBody = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password);
-
-		response = ApiUtils.post("/auth/login", requestBody);
-		System.out.println("Auth Status Code: " + response.statusCode());
-		response.prettyPrint();
-	}
-
-	@Then("the authentication status code should be {int}")
-	public void verifyStatusCode(int expectedStatusCode) {
-		response.then().statusCode(expectedStatusCode);
-	}
-
-	@Then("the response should contain an authentication token")
-	public void verifyToken() {
-		String token = response.jsonPath().getString("token");
-
-		Assertions.assertNotNull(token, "Token should not be null");
-		Assertions.assertFalse(token.isBlank(), "Token should not be empty");
-	}
-
-	@Then("the authentication error should be {string}")
-	public void verifyError(String expectedError) {
-		response.then().body("error", equalTo(expectedError));
-	}
-
+    private Response response;
+    @Given("the authentication API is available") public void available() { assertNotNull(ApiUtils.baseUrl()); }
+    @When("I login with configured valid credentials")
+    public void validLogin() { response = ApiUtils.post("/auth/login", TestData.credentials()); }
+    @When("I login with username {string} and password {string}")
+    public void login(String username, String password) { response = ApiUtils.post("/auth/login", new LoginRequest(username, password)); }
+    @Then("the authentication status code should be {int}")
+    public void status(int expected) { assertEquals(expected, response.statusCode()); }
+    @Then("the response should contain an authentication token")
+    public void token() {
+        String token = response.jsonPath().getString("token");
+        assertNotNull(token); assertFalse(token.isBlank());
+    }
+    @Then("the authentication error should be {string}")
+    public void error(String expected) { assertEquals(expected, response.jsonPath().getString("error")); }
 }

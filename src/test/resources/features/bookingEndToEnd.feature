@@ -1,9 +1,8 @@
-@e2e
-Feature: End-to-End Booking API
+@booking @e2e @regression
+Feature: Complete a hotel booking lifecycle
 
-  Scenario: Complete booking lifecycle
-    Given I create a new booking for the end-to-end test
-    When I retrieve the newly created booking
-    And I update the newly created booking
-    And I delete the newly created booking
-    Then the booking should no longer be available
+  Scenario: Create, read, update and delete a guest booking
+    Given I have created a booking for a complete lifecycle
+    When I complete the booking lifecycle
+    Then the response status should be 201
+    And the deleted booking should no longer be available

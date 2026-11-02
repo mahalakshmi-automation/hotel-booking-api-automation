@@ -1,43 +1,40 @@
 package com.booking.stepdefinitions;
-import com.booking.models.BookingRequest;
+
 import com.booking.utils.ApiUtils;
-import com.booking.utils.TestData;
+import com.booking.utils.BookingFixtures;
+import com.booking.utils.ScenarioContext;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
-import io.restassured.response.Response;
-import static org.junit.jupiter.api.Assertions.*;
+import io.cucumber.java.en.When;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class BookingEndToEndSteps {
-    private int bookingId;
-    private String token;
-    private BookingRequest booking;
-    @Given("I create a new booking for the end-to-end test") public void create() {
-        booking = TestData.booking();
-        Response response = ApiUtils.post("/booking", booking);
-        assertEquals(201, response.statusCode());
-        bookingId = response.jsonPath().getInt("bookingid");
-        assertTrue(bookingId > 0);
+    private final ScenarioContext context;
+
+    public BookingEndToEndSteps(ScenarioContext context) {
+        this.context = context;
     }
-    @When("I retrieve the newly created booking") public void retrieve() {
-        Response response = ApiUtils.getWithoutAuth("/booking/" + bookingId);
-        assertEquals(200, response.statusCode());
-        assertEquals(booking.getFirstname(), response.jsonPath().getString("firstname"));
+
+    @Given("I have created a booking for a complete lifecycle")
+    public void created() {
+        BookingFixtures.createBooking(context);
     }
-    @When("I update the newly created booking") public void update() {
-        token = ApiUtils.loginToken();
-        booking.setFirstname("David");
-        Response response = ApiUtils.put("/booking/" + bookingId, booking, token);
-        assertEquals(200, response.statusCode());
-        Response verified = ApiUtils.getWithoutAuth("/booking/" + bookingId);
-        assertEquals(200, verified.statusCode(), "Updated booking must be retrievable");
-        assertEquals("David", verified.jsonPath().getString("firstname"), "Updated firstname must persist");
+
+    @When("I complete the booking lifecycle")
+    public void lifecycle() {
+        String path = "/booking/" + context.bookingId();
+        context.token(ApiUtils.loginToken());
+        assertEquals(200, ApiUtils.get(path, context.token()).statusCode(), "Booking should be readable");
+        context.request().setLastname("UpdatedGuest");
+        assertEquals(200, ApiUtils.put(path, context.request(), context.token()).statusCode(),
+                "Booking update should succeed");
+        assertEquals("UpdatedGuest", ApiUtils.get(path, context.token()).jsonPath().getString("lastname"));
+        context.response(ApiUtils.delete(path, context.token()));
     }
-    @When("I delete the newly created booking") public void delete() {
-        Response response = ApiUtils.delete("/booking/" + bookingId, token);
-        assertEquals(201, response.statusCode());
-    }
-    @Then("the booking should no longer be available") public void verifyDeleted() {
-        Response response = ApiUtils.getWithoutAuth("/booking/" + bookingId);
-        assertEquals(404, response.statusCode());
+
+    @Then("the deleted booking should no longer be available")
+    public void deleted() {
+        assertEquals(404, ApiUtils.get("/booking/" + context.bookingId(), context.token()).statusCode());
     }
 }

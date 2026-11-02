@@ -1,23 +1,27 @@
-
-@updateBooking
-Feature: Update Booking API
+@booking @update
+Feature: Update an existing booking
 
   Background:
-    Given I have an existing booking ID
+    Given an existing booking is available
 
-  @positive
-  Scenario: Update an existing booking
-    Given I have a valid authentication token
-    When I update the booking details
-    Then the update booking status code should be 200
+  @positive @regression
+  Scenario Outline: Administrator changes a booking last name
+    Given I am authenticated as an administrator
+    When I update the booking last name to "<lastName>"
+    Then the response status should be 200
 
-  @positive
-  Scenario: Partially update an existing booking
-    Given I have a valid authentication token
-    When I partially update the booking firstname
-    Then the partial update status code should be 200
+    Examples:
+      | lastName |
+      | Smith    |
+      | Taylor   |
 
-  @negative
-  Scenario: Update booking without authentication
-    When I update the booking without authentication
-    Then the update booking status code should be 401
+  @positive @regression
+  Scenario: Administrator changes a booking first name
+    Given I am authenticated as an administrator
+    When I change the booking first name to "David"
+    Then the response status should be 200
+
+  @negative @regression
+  Scenario: Guest cannot update a booking without authentication
+    When I update the booking last name to "Smith"
+    Then the response status should be 401

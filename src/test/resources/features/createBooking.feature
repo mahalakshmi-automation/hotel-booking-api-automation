@@ -1,22 +1,26 @@
-@booking
-Feature: Create Booking API
-  As an API tester
-  I want to create hotel bookings
-  So that I can verify the booking API
+@booking @create
+Feature: Create a hotel booking
+  Guests can request rooms using their personal details and stay dates.
 
-  @positive
-  Scenario: Create a booking with valid details
-    When I create a booking with valid details
-    Then the booking should be created successfully
+  @positive @smoke
+  Scenario: Guest creates a valid booking
+    When I submit a valid booking request
+    Then the response status should be 201
     And the response should contain a booking ID
-    And the created booking details should match the request
+    And the created booking should match the submitted details
 
-  @negative
-  Scenario: Create booking without request body
-    When I create a booking without request body
-    Then the create booking status code should be 400
+  @negative @regression
+  Scenario: Booking requires a request body
+    When I submit a booking without a request body
+    Then the response status should be 400
 
-  @negative
-  Scenario: Create booking with missing firstname
-    When I create a booking without firstname
-    Then the create booking status code should be 400
+  @negative @regression
+  Scenario Outline: Mandatory booking fields cannot be omitted
+    When I submit a booking missing the "<field>" field
+    Then the response status should be 400
+
+    Examples:
+      | field     |
+      | firstname |
+      | lastname  |
+      | email     |

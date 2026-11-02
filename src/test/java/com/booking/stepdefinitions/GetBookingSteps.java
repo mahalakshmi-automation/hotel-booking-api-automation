@@ -1,20 +1,37 @@
 package com.booking.stepdefinitions;
+
 import com.booking.utils.ApiUtils;
-import io.cucumber.java.en.When;
+import com.booking.utils.ScenarioContext;
 import io.cucumber.java.en.Then;
-import io.restassured.response.Response;
+import io.cucumber.java.en.When;
+
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class GetBookingSteps {
-    private Response response;
-    @When("I request booking ID {int} without authentication")
-    public void withoutAuth(int id) { response = ApiUtils.getWithoutAuth("/booking/" + id); }
-    @When("I request booking ID {int} with valid authentication")
-    public void withAuth(int id) { response = ApiUtils.get("/booking/" + id, ApiUtils.loginToken()); }
-    @Then("the get booking status code should be {int}")
-    public void status(int expected) { assertEquals(expected, response.statusCode()); }
-    @Then("the get booking error should be {string}")
-    public void error(String expected) { assertEquals(expected, response.jsonPath().getString("error")); }
-    @Then("the get booking response should match the JSON schema")
-    public void schema() { response.then().body(matchesJsonSchemaInClasspath("schemas/booking-response-schema.json")); }
+    private final ScenarioContext context;
+
+    public GetBookingSteps(ScenarioContext context) {
+        this.context = context;
+    }
+
+    @When("I retrieve the existing booking")
+    public void getBooking() {
+        context.response(ApiUtils.get("/booking/" + context.bookingId(), context.token()));
+    }
+
+    @When("I retrieve booking ID {int} without authentication")
+    public void getById(int id) {
+        context.response(ApiUtils.get("/booking/" + id, null));
+    }
+
+    @Then("the booking response should match its JSON schema")
+    public void schema() {
+        context.response().then().body(matchesJsonSchemaInClasspath("schemas/booking-response-schema.json"));
+    }
+
+    @Then("the retrieved booking should match the created booking")
+    public void match() {
+        assertEquals(context.request().getFirstname(), context.response().jsonPath().getString("firstname"));
+    }
 }

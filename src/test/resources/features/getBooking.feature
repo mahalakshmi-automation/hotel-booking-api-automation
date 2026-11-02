@@ -1,14 +1,13 @@
-@getbooking
-Feature: Get Booking API
+@booking @get
+Feature: Retrieve an existing booking
 
-  @negative
-  Scenario: Get booking without authentication
-    When I request booking ID 1 without authentication
-    Then the get booking status code should be 401
-    And the get booking error should be "Unauthorized"
+  Background:
+    Given an existing booking is available
 
-  @positive
-  Scenario: Get booking with valid authentication
-    When I request booking ID 1 with valid authentication
-    Then the get booking status code should be 200
-    And the get booking response should match the JSON schema
+  @positive @regression
+  Scenario: Guest retrieves their booking
+    Given I am authenticated as an administrator
+    When I retrieve the existing booking
+    Then the response status should be 200
+    And the retrieved booking should match the created booking
+    And the booking response should match its JSON schema

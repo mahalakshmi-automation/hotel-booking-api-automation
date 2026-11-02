@@ -1,6 +1,7 @@
-@message
+@message @regression
+Feature: Retrieve guest messages
 
-Feature: Get messages
-  Scenario: Message
-    When I want to read the messages
-    Then I should receive all existing messages
+  Scenario: Messages include identifiers
+    When I retrieve guest messages
+    Then the response status should be 200
+    And each returned message should have an ID

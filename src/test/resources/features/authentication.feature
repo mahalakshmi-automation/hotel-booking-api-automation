@@ -1,24 +1,20 @@
+@authentication
+Feature: Administrator authentication
+  To manage bookings, an administrator must sign in successfully.
 
-@auth @authentication
-Feature: Authentication API
+  @positive @smoke
+  Scenario: Administrator signs in with valid credentials
+    When I sign in using configured credentials
+    Then the response status should be 200
+    And an authentication token should be returned
 
-  Background:
-    Given the authentication API is available
-
-  @positive
-  Scenario: Login with valid credentials
-    When I login with configured valid credentials
-    Then the authentication status code should be 200
-    And the response should contain an authentication token
-
-  @negative
-  Scenario Outline: Login with invalid credentials
-    When I login with username "<username>" and password "<password>"
-    Then the authentication status code should be 401
+  @negative @regression
+  Scenario Outline: Invalid credentials cannot create a session
+    When I sign in with username "<username>" and password "<password>"
+    Then the response status should be 401
     And the authentication error should be "Invalid credentials"
 
     Examples:
-      | username | password  |
-      | admin    | wrong123  |
-      | invalid  | password  |
-      | invalid  | wrong123  |
+      | username | password |
+      | invalid  | wrong123 |
+      | admin    | wrong123 |

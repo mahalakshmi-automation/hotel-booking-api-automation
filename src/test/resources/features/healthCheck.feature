@@ -1,6 +1,7 @@
-@smoke @health
-Feature: Check Booking API availability
+@health @smoke
+Feature: Booking service availability
 
-  Scenario: Verify the booking service is available
+  Scenario: Booking service is healthy
     When I check the booking service health
-    Then the booking service should be running
+    Then the response status should be 200
+    And the booking service should report UP
